@@ -32,7 +32,7 @@ export class Game {
 
       for (const dynamicItem of this.dynamicItems) {
         if (dynamicItem.keyBindings) {
-          for (const [key, movement] of Object.entries(dynamicItem.keyBindings)) {
+          for (const [key, movement] of Object.entries(dynamicItem.keyBindings(this))) {
             if (this.keyboard.keys[key]) dynamicItem.addMovement(movement)
           }
         }
@@ -41,21 +41,16 @@ export class Game {
         dynamicItem.clearOldMovements()
       }
 
-      this.staticItems.forEach(staticItem => {
-        Object.values(staticItem.collisionObservers).forEach(observer => {
-          if (observer.checkCollision(staticItem)) observer.onCollision()
+      const checkCollisionsAndDraw = item => {
+        this.canvas?.drawItem(item)
+        Object.values(item.collisionObservers).forEach(observer => {
+          if (observer.checkCollision(item)) observer.onCollision()
+          else observer.onNoCollision()
         })
-        this.canvas?.drawItem(staticItem)
-      })
+      }
 
-      this.dynamicItems.forEach(dynamicItem => {
-        Object.values(dynamicItem.collisionObservers).forEach(observer => {
-          if (observer.checkCollision(dynamicItem)) observer.onCollision()
-        })
-        this.canvas?.drawItem(dynamicItem)
-      })
-
-
+      this.staticItems.forEach(checkCollisionsAndDraw)
+      this.dynamicItems.forEach(checkCollisionsAndDraw)
     }, this.deltaTime)
   }
 

@@ -29,6 +29,11 @@ export class GameCanvas {
     }
   }
 
+  fillText(text, x, y) {
+    this.ctx.font = '30px Arial red'
+    this.ctx.fillText(text, x, y)
+  }
+
   drawItem(item) {
     if (!item.isActive) return
     if (item.texture) {

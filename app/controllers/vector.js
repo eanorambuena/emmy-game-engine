@@ -25,6 +25,10 @@ export class Vector {
   equals(vector) {
     return this.x === vector.x && this.y === vector.y
   }
+
+  kroneckerProduct(vector) {
+    return new Vector({ x: this.x * vector.x, y: this.y * vector.y })
+  }
 }
 
 export const ZERO_VECTOR = new Vector({ x: 0, y: 0 })

@@ -1,8 +1,9 @@
 class CollisionObserver {
-  constructor({ item, isHard = false, onCollision = () => {} }) {
+  constructor({ item, isHard = false, onCollision = () => {}, onNoCollision = () => {} }) {
     this.item = item
     this.isHard = isHard
     this.onCollision = onCollision
+    this.onNoCollision = onNoCollision
   }
 
   checkCollision(item) {
@@ -11,23 +12,24 @@ class CollisionObserver {
       this.item.y < item.y + item.height &&
       this.item.y + this.item.height > item.y
   }
-}
 
-export function createSoftCollision(items) {
-  for (let i = 0; i < items.length; i++) {
-    for (let j = i + 1; j < items.length; j++) {
-      items[i].addCollisionObserver(new CollisionObserver({ item: items[j] }))
-      items[j].addCollisionObserver(new CollisionObserver({ item: items[i] }))
-    }
+  OnCollision(action) {
+    this.onCollision = action
+    return this
+  }
+
+  OnNoCollision(action) {
+    this.onNoCollision = action
+    return this
   }
 }
 
-export function createHardCollision(items) {
-  for (let i = 0; i < items.length; i++) {
-    for (let j = i + 1; j < items.length; j++) {
-      items[i].addCollisionObserver(new CollisionObserver({ item: items[j], isHard: true }))
-      items[j].addCollisionObserver(new CollisionObserver({ item: items[i], isHard: true }))
-    }
-  }
+export function createSoftCollision(item1, item2) {
+  item1.addCollisionObserver(new CollisionObserver({ item: item2 }))
+  item2.addCollisionObserver(new CollisionObserver({ item: item1 }))
 }
 
+export function createHardCollision(item1, item2) {
+  item1.addCollisionObserver(new CollisionObserver({ item: item2, isHard: true }))
+  item2.addCollisionObserver(new CollisionObserver({ item: item1, isHard: true }))
+}

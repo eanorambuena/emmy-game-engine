@@ -1,7 +1,8 @@
-import { Item, RigidBody } from './controllers/item'
+import { DynamicItem, Item, RigidBody } from './controllers/item'
 import { Vector, ZERO_VECTOR } from './controllers/vector'
 import { KeyBindings } from './controllers/keyBindings'
 import { createHardCollision } from './controllers/collisions'
+import { Movement, Movements } from './controllers/movements'
 
 export function setup(game) {
   const floor = new Item({
@@ -16,33 +17,76 @@ export function setup(game) {
     texture: 'https://emojicdn.elk.sh/🚀'
   })
   const player2 = new RigidBody({
-    position: new Vector({ x: 100, y: 100 }),
+    position: new Vector({ x: 300, y: 300 }),
     size: 50,
+    movementSpeed: new Vector({ x: 0.5, y: 1.1 }),
+    gravity: new Vector({ x: 0, y: 0.002 }),
     keyBindings: KeyBindings.WASD,
     texture: 'https://emojicdn.elk.sh/👾'
-  })
-  const cactus = new RigidBody({
-    position: new Vector({ x: 200, y: 300 }),
-    size: 50,
-    texture: 'https://emojicdn.elk.sh/🌵',
-    isActive: false
   })
 
   game.addStaticItem(floor)
   game.addRigidBody(player1)
-  game.addDynamicItem(player2)
-  game.addDynamicItem(cactus)
+  game.addRigidBody(player2)
 
-  createHardCollision([player1, player2, floor, cactus])
+  createHardCollision(player1, floor)
+  createHardCollision(player2, floor)
+  createHardCollision(player1, player2)
 
-  player1.getCollisionObserverWithItem(player2).onCollision = () => {
-    console.log('COLLISION!')
-    player1.movements = []
-    player1.velocity = ZERO_VECTOR
-    cactus.isActive = true
+  floor
+    .OnCollision(player1, () => {
+      player1.velocity = ZERO_VECTOR
+    })
+    .OnCollision(player2, () => {
+      player2.velocity = ZERO_VECTOR
+    })
+
+  let cactusSpeed = 0.01
+
+  const resetGame = () => {
+    window.location.reload()
+  }
+
+  const cactusList = []
+  for (let i = 0; i < 10; i++) {
+    const cactus = new DynamicItem({
+      position: new Vector({ x: 800 + i * 150 * Math.random(), y: 300 }),
+      size: 50,
+      texture: 'https://emojicdn.elk.sh/🌵'
+    })
+    game.addDynamicItem(cactus)
+    cactusList.push(cactus)
+
+    createHardCollision(cactus, player2)
+
+    cactus
+      .OnCollision(player2, () => {
+        game.canvas.fillText('Player 👾 lost!', 30, 30)
+        resetGame()
+      })
   }
 
   game.gameLoop = () => {
-    
+    if (player2.y >= 299) {
+      player2.keyBindings = KeyBindings.WASD
+    }
+    else {
+      player2.keyBindings = (game) => ({
+        w: ZERO_VECTOR,
+        a: Movements.LEFT,
+        s: Movements.DOWN,
+        d: Movements.RIGHT
+      })
+    }
+
+    cactusList.forEach(cactus => {
+      cactus.addMovement(new Movement({ x: -0.01, y: 0 }))
+
+      if (cactus.x < 0) {
+        cactus.position = new Vector({ x: 800, y: 300 })
+      }
+    })
+
+    cactusSpeed += 0.001
   }
 }

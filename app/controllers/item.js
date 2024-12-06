@@ -2,9 +2,9 @@ import { MovementIds } from './movements'
 import { Vector, ZERO_VECTOR } from './vector'
 
 const DEFAULT_COLOR = 'green'
-const DEFAULT_MOVEMENT_SPEED = 1
+const DEFAULT_MOVEMENT_SPEED = new Vector({ x: 1, y: 1 })
 const DEFAULT_INERTIA = 100
-const DEFAULT_GRAVITY = new Vector({ x: 0, y: 0.01 })
+const DEFAULT_GRAVITY = new Vector({ x: 0, y: 0.098 })
 
 export class Item {
   constructor({ position, width, height, size, texture, color = DEFAULT_COLOR, isActive = true }) {
@@ -39,17 +39,27 @@ export class Item {
   getCollisionObserverWithItem(item) {
     return this.collisionObservers.find(observer => observer.item === item)
   }
+
+  OnCollision(item, action) {
+    this.getCollisionObserverWithItem(item).onCollision = action
+    return this
+  }
+
+  OnNoCollision(item, action) {
+    this.getCollisionObserverWithItem(item).onNoCollision = action
+    return this
+  }
 }
 
 
 export class DynamicItem extends Item {
-  constructor({ position, width, height, size, texture, color, keyBindings, isActive, inertia = DEFAULT_INERTIA }) {
+  constructor({ position, width, height, size, texture, color, keyBindings, isActive, inertia = DEFAULT_INERTIA, movementSpeed = DEFAULT_MOVEMENT_SPEED }) {
     super({ position, width, height, size, texture, color, isActive })
     this.inertia = inertia
     this.velocity = ZERO_VECTOR
     this.movements = []
     this.keyBindings = keyBindings
-    this.movementSpeed = DEFAULT_MOVEMENT_SPEED
+    this.movementSpeed = movementSpeed
   }
 
   move(movement) {
@@ -62,6 +72,10 @@ export class DynamicItem extends Item {
       if (willCollideWithThatItem) {
         collisionObserver.onCollision()
         collisionObserver.item.getCollisionObserverWithItem(this).onCollision()
+      }
+      else {
+        collisionObserver.onNoCollision()
+        collisionObserver.item.getCollisionObserverWithItem(this).onNoCollision()
       }
       return willCollideWithThatItem
     })
@@ -85,7 +99,7 @@ export class DynamicItem extends Item {
       .filter(movement => movement.id !== MovementIds.PHYSICS)
       .reduce((acc, movement) => acc.add(movement), ZERO_VECTOR)
       .normalize()
-      .scale(this.movementSpeed)
+      .kroneckerProduct(this.movementSpeed)
   }
 
   getPhysicsMovementDirection() {
@@ -100,8 +114,8 @@ export class DynamicItem extends Item {
 }
 
 export class RigidBody extends DynamicItem {
-  constructor({ position, width, height, size, texture, color, inertia, keyBindings, isActive }) {
-    super({ position, width, height, size, texture, color, inertia, keyBindings, isActive })
+  constructor({ position, width, height, size, texture, color, inertia, keyBindings, isActive, movementSpeed }) {
+    super({ position, width, height, size, texture, color, inertia, keyBindings, isActive, movementSpeed })
     this.forces = []
     this.gravity = DEFAULT_GRAVITY
   }

@@ -1,7 +1,15 @@
 import { Vector } from './vector'
 
+export const MovementIds = {
+  UP: 'UP',
+  DOWN: 'DOWN',
+  LEFT: 'LEFT',
+  RIGHT: 'RIGHT',
+  PHYSICS: 'PHYSICS'
+}
+
 export class Movement extends Vector {
-  constructor({ x, y, id }) {
+  constructor({ x, y, id = MovementIds.PHYSICS }) {
     super({ x, y })
     this.id = id
     this.createdAt = Date.now()
@@ -16,14 +24,6 @@ export class Movement extends Vector {
     normalized.id = this.id
     return normalized
   }
-}
-
-export const MovementIds = {
-  UP: 'UP',
-  DOWN: 'DOWN',
-  LEFT: 'LEFT',
-  RIGHT: 'RIGHT',
-  PHYSICS: 'PHYSICS'
 }
 
 export const Movements = {
