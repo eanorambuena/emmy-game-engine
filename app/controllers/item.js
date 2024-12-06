@@ -7,12 +7,14 @@ const DEFAULT_INERTIA = 100
 const DEFAULT_GRAVITY = new Vector({ x: 0, y: 0.01 })
 
 export class Item {
-  constructor({ position, width, height, size, texture }) {
+  constructor({ position, width, height, size, texture, isActive = true }) {
     this.position = position
     this.width = size ?? width
     this.height = size ?? height
     this.color = DEFAULT_COLOR
     this.texture = texture
+    this.collisionObservers = {}
+    this.isActive = isActive
   }
 
   get x() {
@@ -22,12 +24,23 @@ export class Item {
   get y() {
     return this.position.y
   }
+
+  checkCollision(item) {
+    return this.x < item.x + item.width &&
+      this.x + this.width > item.x &&
+      this.y < item.y + item.height &&
+      this.y + this.height > item.y
+  }
+
+  addCollisionObserver(observer) {
+    this.collisionObservers[observer.item] = observer
+  }
 }
 
 
 export class DynamicItem extends Item {
-  constructor({ position, width, height, size, texture, inertia = DEFAULT_INERTIA, keyBindings }) {
-    super({ position, width, height, size, texture })
+  constructor({ position, width, height, size, texture, keyBindings, isActive, inertia = DEFAULT_INERTIA }) {
+    super({ position, width, height, size, texture, isActive })
     this.inertia = inertia
     this.velocity = ZERO_VECTOR
     this.movements = []
@@ -36,7 +49,20 @@ export class DynamicItem extends Item {
   }
 
   move(movement) {
-    this.position = this.position.add(movement)
+    const nextPosition = this.position.add(movement);
+
+    const willCollide = Object.values(this.collisionObservers).some(collisionObserver => {
+      const itemInNextPosition = new Item({ position: nextPosition, width: this.width, height: this.height })
+      const willCollideWithThatItem = collisionObserver.item.checkCollision(itemInNextPosition)
+      if (willCollideWithThatItem) {
+        collisionObserver.onCollision(this)
+      }
+      return willCollideWithThatItem
+    })
+      
+    if (!willCollide) {
+      this.position = nextPosition
+    }
   }
 
   addMovement(movement) {
@@ -68,8 +94,8 @@ export class DynamicItem extends Item {
 }
 
 export class RigidBody extends DynamicItem {
-  constructor({ position, width, height, size, texture, step, inertia, keyBindings, mass }) {
-    super({ position, width, height, size, texture, step, inertia, keyBindings })
+  constructor({ position, width, height, size, texture, step, inertia, keyBindings, isActive }) {
+    super({ position, width, height, size, texture, step, inertia, keyBindings, isActive })
     this.forces = []
     this.gravity = DEFAULT_GRAVITY
   }

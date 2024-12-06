@@ -34,7 +34,7 @@ export class Game {
         dynamicItem.move(dynamicItem.getControllerMovementDirection().scale(this.deltaTime))
         dynamicItem.move(dynamicItem.getPhysicsMovementDirection().scale(this.deltaTime))
         dynamicItem.clearOldMovements()
-        this.canvas.drawItem(dynamicItem)
+        this.canvas?.drawItem(dynamicItem)
       }
     }, this.deltaTime)
   }

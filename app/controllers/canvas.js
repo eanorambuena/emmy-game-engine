@@ -30,6 +30,7 @@ export class GameCanvas {
   }
 
   drawItem(item) {
+    if (!item.isActive) return
     if (item.texture) {
       this.fillSprite(item)
     } else {

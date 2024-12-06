@@ -1,6 +1,7 @@
 import { RigidBody } from './controllers/item'
 import { Vector } from './controllers/vector'
 import { KeyBindings } from './controllers/keyBindings'
+import { createCollision } from './controllers/collisions'
 
 export function setup(game) {
   const player1 = new RigidBody({
@@ -15,11 +16,25 @@ export function setup(game) {
     keyBindings: KeyBindings.WASD,
     texture: 'https://emojicdn.elk.sh/👾'
   })
+  const cactus = new RigidBody({
+    position: new Vector({ x: 200, y: 200 }),
+    size: 50,
+    texture: 'https://emojicdn.elk.sh/🌵',
+    isActive: false
+  })
 
   game.addRigidBody(player1)
   game.addDynamicItem(player2)
+  game.addDynamicItem(cactus)
+
+  createCollision([player1, player2])
+  
+  player1.collisionObservers[player2].onCollision = () => {
+    console.log('COLLISION!')
+    cactus.isActive = true
+  }
 
   game.gameLoop = () => {
-    //player1.addMovement(new Vector({ x: game.deltaTime, y: game.deltaTime * .5 }))
+    
   }
 }
