@@ -8,6 +8,7 @@ export class Game {
   constructor() {
     this.keyboard = new Keyboard()
     this.canvas = null
+    this.staticItems = []
     this.dynamicItems = []
     this.rigidBodies = []
     this.gameLoop = () => {}
@@ -16,6 +17,10 @@ export class Game {
     setInterval(() => {
       if (this.canvas) this.canvas.clear()
       this.gameLoop()
+
+      this.staticItems.forEach(staticItem => {
+        this.canvas?.drawItem(staticItem)
+      })
 
       for (const rigidBody of this.rigidBodies) {
         const netForce = rigidBody.getNetForce()
@@ -34,9 +39,28 @@ export class Game {
         dynamicItem.move(dynamicItem.getControllerMovementDirection().scale(this.deltaTime))
         dynamicItem.move(dynamicItem.getPhysicsMovementDirection().scale(this.deltaTime))
         dynamicItem.clearOldMovements()
-        this.canvas?.drawItem(dynamicItem)
       }
+
+      this.staticItems.forEach(staticItem => {
+        Object.values(staticItem.collisionObservers).forEach(observer => {
+          if (observer.checkCollision(staticItem)) observer.onCollision()
+        })
+        this.canvas?.drawItem(staticItem)
+      })
+
+      this.dynamicItems.forEach(dynamicItem => {
+        Object.values(dynamicItem.collisionObservers).forEach(observer => {
+          if (observer.checkCollision(dynamicItem)) observer.onCollision()
+        })
+        this.canvas?.drawItem(dynamicItem)
+      })
+
+
     }, this.deltaTime)
+  }
+
+  addStaticItem(staticItem) {
+    this.staticItems.push(staticItem)
   }
 
   addDynamicItem(dynamicItem) {

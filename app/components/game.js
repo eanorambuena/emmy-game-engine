@@ -4,6 +4,8 @@ import { setup } from '../setup'
 
 export function game({ el }) {
   el.className = 'flex justify-center items-center'
+  const width = 800
+  const height = 400
   
   const game = new Game()
   setup(game)
@@ -16,8 +18,8 @@ export function game({ el }) {
   return () => html`
     <canvas 
       id='gameCanvas'
-      width='800'
-      height='400'
+      width='${width}'
+      height='${height}'
       class='border-2 border-black'
     >
     </canvas>

@@ -7,13 +7,13 @@ const DEFAULT_INERTIA = 100
 const DEFAULT_GRAVITY = new Vector({ x: 0, y: 0.01 })
 
 export class Item {
-  constructor({ position, width, height, size, texture, isActive = true }) {
+  constructor({ position, width, height, size, texture, color = DEFAULT_COLOR, isActive = true }) {
     this.position = position
     this.width = size ?? width
     this.height = size ?? height
-    this.color = DEFAULT_COLOR
+    this.color = color
     this.texture = texture
-    this.collisionObservers = {}
+    this.collisionObservers = []
     this.isActive = isActive
   }
 
@@ -33,14 +33,18 @@ export class Item {
   }
 
   addCollisionObserver(observer) {
-    this.collisionObservers[observer.item] = observer
+    this.collisionObservers.push(observer)
+  }
+
+  getCollisionObserverWithItem(item) {
+    return this.collisionObservers.find(observer => observer.item === item)
   }
 }
 
 
 export class DynamicItem extends Item {
-  constructor({ position, width, height, size, texture, keyBindings, isActive, inertia = DEFAULT_INERTIA }) {
-    super({ position, width, height, size, texture, isActive })
+  constructor({ position, width, height, size, texture, color, keyBindings, isActive, inertia = DEFAULT_INERTIA }) {
+    super({ position, width, height, size, texture, color, isActive })
     this.inertia = inertia
     this.velocity = ZERO_VECTOR
     this.movements = []
@@ -49,13 +53,15 @@ export class DynamicItem extends Item {
   }
 
   move(movement) {
-    const nextPosition = this.position.add(movement);
+    const nextPosition = this.position.add(movement)
+ 
+    const itemInNextPosition = new Item({ position: nextPosition, width: this.width, height: this.height })
 
     const willCollide = Object.values(this.collisionObservers).some(collisionObserver => {
-      const itemInNextPosition = new Item({ position: nextPosition, width: this.width, height: this.height })
-      const willCollideWithThatItem = collisionObserver.item.checkCollision(itemInNextPosition)
+      const willCollideWithThatItem = collisionObserver.isHard && collisionObserver.checkCollision(itemInNextPosition)
       if (willCollideWithThatItem) {
-        collisionObserver.onCollision(this)
+        collisionObserver.onCollision()
+        collisionObserver.item.getCollisionObserverWithItem(this).onCollision()
       }
       return willCollideWithThatItem
     })
@@ -94,8 +100,8 @@ export class DynamicItem extends Item {
 }
 
 export class RigidBody extends DynamicItem {
-  constructor({ position, width, height, size, texture, step, inertia, keyBindings, isActive }) {
-    super({ position, width, height, size, texture, step, inertia, keyBindings, isActive })
+  constructor({ position, width, height, size, texture, color, inertia, keyBindings, isActive }) {
+    super({ position, width, height, size, texture, color, inertia, keyBindings, isActive })
     this.forces = []
     this.gravity = DEFAULT_GRAVITY
   }
