@@ -26,3 +26,5 @@ export class Vector {
     return this.x === vector.x && this.y === vector.y
   }
 }
+
+export const ZERO_VECTOR = new Vector({ x: 0, y: 0 })

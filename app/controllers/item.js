@@ -1,11 +1,17 @@
-import { Vector } from './vector'
+import { MovementIds } from './movements'
+import { Vector, ZERO_VECTOR } from './vector'
+
+const DEFAULT_COLOR = 'green'
+const DEFAULT_MOVEMENT_SPEED = 1
+const DEFAULT_INERTIA = 100
+const DEFAULT_GRAVITY = new Vector({ x: 0, y: 0.01 })
 
 export class Item {
   constructor({ position, width, height, size, texture }) {
     this.position = position
     this.width = size ?? width
     this.height = size ?? height
-    this.color = 'green'
+    this.color = DEFAULT_COLOR
     this.texture = texture
   }
 
@@ -20,16 +26,17 @@ export class Item {
 
 
 export class DynamicItem extends Item {
-  constructor({ position, width, height, size, texture, step = 1, inertia = 100, keyBindings }) {
+  constructor({ position, width, height, size, texture, inertia = DEFAULT_INERTIA, keyBindings }) {
     super({ position, width, height, size, texture })
-    this.step = step
     this.inertia = inertia
+    this.velocity = ZERO_VECTOR
     this.movements = []
     this.keyBindings = keyBindings
+    this.movementSpeed = DEFAULT_MOVEMENT_SPEED
   }
 
-  move(movement, amount = this.step) {
-    this.position = this.position.add(movement.scale(amount))
+  move(movement) {
+    this.position = this.position.add(movement)
   }
 
   addMovement(movement) {
@@ -38,14 +45,42 @@ export class DynamicItem extends Item {
   }
 
   getMovementSum() {
-    return this.movements.reduce((acc, movement) => acc.add(movement), new Vector({ x: 0, y: 0 }))
+    return this.movements.reduce((acc, movement) => acc.add(movement), ZERO_VECTOR)
   }
 
-  getMovementDirection() {
-    return this.getMovementSum().normalize()
+  getControllerMovementDirection() {
+    return this.movements
+      .filter(movement => movement.id !== MovementIds.PHYSICS)
+      .reduce((acc, movement) => acc.add(movement), ZERO_VECTOR)
+      .normalize()
+      .scale(this.movementSpeed)
+  }
+
+  getPhysicsMovementDirection() {
+    return this.movements
+      .filter(movement => movement.id === MovementIds.PHYSICS)
+      .reduce((acc, movement) => acc.add(movement), ZERO_VECTOR)
   }
 
   clearOldMovements() {
     this.movements = this.movements.filter(movement => Date.now() - movement.createdAt < this.inertia)
+  }
+}
+
+export class RigidBody extends DynamicItem {
+  constructor({ position, width, height, size, texture, step, inertia, keyBindings, mass }) {
+    super({ position, width, height, size, texture, step, inertia, keyBindings })
+    this.forces = []
+    this.gravity = DEFAULT_GRAVITY
+  }
+
+  addForce(force) {
+    this.forces.push(force)
+  }
+
+  getNetForce() {
+    return this.forces
+      .reduce((acc, force) => acc.add(force), ZERO_VECTOR)
+      .add(this.gravity)
   }
 }

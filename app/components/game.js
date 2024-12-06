@@ -1,27 +1,12 @@
 import { load, html } from 'emmy-dom'
-import { DynamicItem } from '../controllers/item'
 import { Game } from '../controllers/game'
-import { Vector } from '../controllers/vector'
-import { KeyBindings } from '../controllers/keyBindings'
+import { setup } from '../setup'
 
 export function game({ el }) {
   el.className = 'flex justify-center items-center'
   
   const game = new Game()
-  const player1 = new DynamicItem({
-    position: new Vector({ x: 50, y: 50 }),
-    size: 50,
-    keyBindings: KeyBindings.ARROWS,
-    texture: 'https://emojicdn.elk.sh/🚀'
-  })
-  const player2 = new DynamicItem({
-    position: new Vector({ x: 100, y: 100 }),
-    size: 50,
-    keyBindings: KeyBindings.WASD,
-    texture: 'https://emojicdn.elk.sh/👾'
-  })
-  game.addDynamicItem(player1)
-  game.addDynamicItem(player2)
+  setup(game)
 
   el.useEffect(() => {
     game.initializeCanvas(el.querySelector('#gameCanvas'))
