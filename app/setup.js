@@ -19,8 +19,8 @@ export function setup(game) {
   const player2 = new RigidBody({
     position: new Vector({ x: 300, y: 300 }),
     size: 50,
-    movementSpeed: new Vector({ x: 0.5, y: 1.1 }),
-    gravity: new Vector({ x: 0, y: 0.002 }),
+    movementSpeed: new Vector({ x: 0.5, y: 2 }),
+    gravity: new Vector({ x: 0, y: 0.0001 }),
     keyBindings: KeyBindings.WASD,
     texture: 'https://emojicdn.elk.sh/👾'
   })
@@ -44,13 +44,14 @@ export function setup(game) {
   let cactusSpeed = 0.01
 
   const resetGame = () => {
+    cactusList.forEach(cactus => cactus.remove())
     window.location.reload()
   }
 
   const cactusList = []
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 5; i++) {
     const cactus = new DynamicItem({
-      position: new Vector({ x: 800 + i * 150 * Math.random(), y: 300 }),
+      position: new Vector({ x: 800 + i * (150 + 100 * Math.random()), y: 300 }),
       size: 50,
       texture: 'https://emojicdn.elk.sh/🌵'
     })

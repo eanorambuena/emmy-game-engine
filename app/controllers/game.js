@@ -2,7 +2,7 @@ import { Movement, MovementIds } from './movements'
 import { GameCanvas } from './canvas'
 import { Keyboard } from './keyboard'
 
-const DEFAULT_DELTA_TIME = 10
+const DEFAULT_DELTA_TIME = 15
 
 export class Game {
   constructor() {
