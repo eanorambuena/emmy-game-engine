@@ -6,8 +6,9 @@ export function game({ el }) {
   el.className = 'flex justify-center items-center'
   const width = 800
   const height = 400
+  const expectedFps = 60
   
-  const game = new Game({ showColliders: false })
+  const game = new Game({ showColliders: false, deltaTime: 1000 / expectedFps })
   setup(game)
 
   el.useEffect(() => {

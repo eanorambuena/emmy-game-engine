@@ -6,14 +6,14 @@ import { Vector } from './vector'
 const DEFAULT_DELTA_TIME = 15
 
 export class Game {
-  constructor({showColliders = false } = {}) {
+  constructor({showColliders = false, deltaTime = DEFAULT_DELTA_TIME } = {}) {
     this.keyboard = new Keyboard()
     this.canvas = null
     this.staticItems = []
     this.dynamicItems = []
     this.rigidBodies = []
     this.gameLoop = () => {}
-    this.deltaTime = DEFAULT_DELTA_TIME
+    this.deltaTime = deltaTime
 
     setInterval(() => {
       if (this.canvas) this.canvas.clear()

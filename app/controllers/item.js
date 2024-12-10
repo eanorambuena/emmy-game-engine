@@ -55,6 +55,7 @@ export class DynamicItem extends Item {
     this.movements = []
     this.keyBindings = keyBindings
     this.movementSpeed = movementSpeed
+    this.normalizeMovementSpeed = true
   }
 
   move(movement) {
@@ -90,11 +91,14 @@ export class DynamicItem extends Item {
   }
 
   getControllerMovementDirection() {
-    return this.movements
+    let computedMovements = this.movements
       .filter(movement => movement.id !== MovementIds.PHYSICS)
       .reduce((acc, movement) => acc.add(movement), ZERO_VECTOR)
-      .normalize()
-      .kroneckerProduct(this.movementSpeed)
+    
+    if (this.normalizeMovementSpeed) {
+      computedMovements = computedMovements.normalize()
+    }
+    return computedMovements.kroneckerProduct(this.movementSpeed)
   }
 
   getPhysicsMovementDirection() {

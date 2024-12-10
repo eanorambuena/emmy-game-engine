@@ -10,6 +10,18 @@ export function setup(game) {
     width: 800,
     height: 50
   })
+  const walls = [
+    new Item({
+      position: new Vector({ x: -50, y: 0 }),
+      width: 50,
+      height: 400
+    }),
+    new Item({
+      position: new Vector({ x: 800, y: 0 }),
+      width: 50,
+      height: 400
+    })
+  ]
   const player1 = new RigidBody({
     position: new Vector({ x: 50, y: 50 }),
     size: 50,
@@ -28,6 +40,7 @@ export function setup(game) {
   game.addStaticItem(floor)
   game.addRigidBody(player1)
   game.addRigidBody(player2)
+  walls.forEach(wall => game.addStaticItem(wall))
 
   player1.collider.width = 30
   player1.collider.height = 30
@@ -38,6 +51,8 @@ export function setup(game) {
   createHardCollision(player1, floor)
   createHardCollision(player2, floor)
   createHardCollision(player1, player2)
+  walls.forEach(wall => createHardCollision(player1, wall))
+  walls.forEach(wall => createHardCollision(player2, wall))
 
   floor
     .OnCollision(player1, () => {
