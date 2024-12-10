@@ -1,3 +1,4 @@
+import { Collider } from './collisions'
 import { MovementIds } from './movements'
 import { Vector, ZERO_VECTOR } from './vector'
 
@@ -15,6 +16,7 @@ export class Item {
     this.texture = texture
     this.collisionObservers = []
     this.isActive = isActive
+    this.collider = new Collider({ item: this })
   }
 
   get x() {

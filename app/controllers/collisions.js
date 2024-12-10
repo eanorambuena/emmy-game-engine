@@ -7,10 +7,10 @@ class CollisionObserver {
   }
 
   checkCollision(item) {
-    return this.item.x < item.x + item.width &&
-      this.item.x + this.item.width > item.x &&
-      this.item.y < item.y + item.height &&
-      this.item.y + this.item.height > item.y
+    return this.item.collider.x < item.collider.x + item.collider.width &&
+      this.item.collider.x + this.item.collider.width > item.collider.x &&
+      this.item.collider.y < item.collider.y + item.collider.height &&
+      this.item.collider.y + this.item.collider.height > item.collider.y
   }
 
   OnCollision(action) {
@@ -21,6 +21,22 @@ class CollisionObserver {
   OnNoCollision(action) {
     this.onNoCollision = action
     return this
+  }
+}
+
+export class Collider {
+  constructor({ item, width, height }) {
+    this.item = item
+    this.width = width ?? item.width
+    this.height = height ?? item.height
+  }
+
+  get x() {
+    return this.item.x + (this.item.width - this.width) / 2
+  }
+
+  get y() {
+    return this.item.y + (this.item.height - this.height) / 2
   }
 }
 

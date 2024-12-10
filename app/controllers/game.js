@@ -1,6 +1,7 @@
 import { Movement, MovementIds } from './movements'
 import { GameCanvas } from './canvas'
 import { Keyboard } from './keyboard'
+import { Vector } from './vector'
 
 const DEFAULT_DELTA_TIME = 15
 
@@ -51,6 +52,11 @@ export class Game {
 
       this.staticItems.forEach(checkCollisionsAndDraw)
       this.dynamicItems.forEach(checkCollisionsAndDraw)
+      // draw colliders
+      this.dynamicItems.forEach(item => {
+        console.log(item.collider)
+        this.canvas?.fillRect({ position: new Vector({ x: item.collider.x, y: item.collider.y }), width: item.collider.width, height: item.collider.height, color: 'red' })
+      })
     }, this.deltaTime)
   }
 

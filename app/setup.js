@@ -29,6 +29,12 @@ export function setup(game) {
   game.addRigidBody(player1)
   game.addRigidBody(player2)
 
+  player1.collider.width = 30
+  player1.collider.height = 30
+
+  player2.collider.width = 40
+  player2.collider.height = 40
+
   createHardCollision(player1, floor)
   createHardCollision(player2, floor)
   createHardCollision(player1, player2)
@@ -44,7 +50,7 @@ export function setup(game) {
   let cactusSpeed = 0.01
 
   const resetGame = () => {
-    cactusList.forEach(cactus => cactus.remove())
+    cactusList = []
     window.location.reload()
   }
 
@@ -55,6 +61,8 @@ export function setup(game) {
       size: 50,
       texture: 'https://emojicdn.elk.sh/🌵'
     })
+    cactus.collider.width = 30
+    cactus.collider.height = 40
     game.addDynamicItem(cactus)
     cactusList.push(cactus)
 
