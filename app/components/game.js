@@ -8,12 +8,12 @@ export function game({ el }) {
   const height = 400
   const expectedFps = 60
   
-  const game = new Game({ showColliders: false, deltaTime: 1000 / expectedFps })
-  setup(game)
+  const gameController = new Game({ showColliders: false, deltaTime: 1000 / expectedFps })
+  setup(gameController)
 
   el.useEffect(() => {
-    game.initializeCanvas(el.querySelector('#gameCanvas'))
-    game.keyboard.bindHandlers()
+    gameController.initializeCanvas(el.querySelector('#gameCanvas'))
+    gameController.keyboard.bindHandlers()
   }, ['didMount'])
 
   return () => html`
