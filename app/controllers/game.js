@@ -6,7 +6,7 @@ import { Vector } from './vector'
 const DEFAULT_DELTA_TIME = 15
 
 export class Game {
-  constructor() {
+  constructor({showColliders = false } = {}) {
     this.keyboard = new Keyboard()
     this.canvas = null
     this.staticItems = []
@@ -52,11 +52,15 @@ export class Game {
 
       this.staticItems.forEach(checkCollisionsAndDraw)
       this.dynamicItems.forEach(checkCollisionsAndDraw)
-      // draw colliders
-      this.dynamicItems.forEach(item => {
-        console.log(item.collider)
-        this.canvas?.fillRect({ position: new Vector({ x: item.collider.x, y: item.collider.y }), width: item.collider.width, height: item.collider.height, color: 'red' })
-      })
+
+      if (!showColliders) {
+        return
+      }
+      const drawColliders = item => {
+        this.canvas?.fillRect({ position: new Vector({ x: item.collider.x, y: item.collider.y }), width: item.collider.width, height: item.collider.height, color: 'rgba(255, 0, 0, 0.7)' })
+      }
+      this.staticItems.forEach(drawColliders)
+      this.dynamicItems.forEach(drawColliders)
     }, this.deltaTime)
   }
 

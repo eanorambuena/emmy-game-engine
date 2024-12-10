@@ -19,7 +19,7 @@ export function setup(game) {
   const player2 = new RigidBody({
     position: new Vector({ x: 300, y: 300 }),
     size: 50,
-    movementSpeed: new Vector({ x: 0.5, y: 2 }),
+    movementSpeed: new Vector({ x: 0.5, y: 1.5 }),
     gravity: new Vector({ x: 0, y: 0.0001 }),
     keyBindings: KeyBindings.WASD,
     texture: 'https://emojicdn.elk.sh/👾'
@@ -32,8 +32,8 @@ export function setup(game) {
   player1.collider.width = 30
   player1.collider.height = 30
 
-  player2.collider.width = 40
-  player2.collider.height = 40
+  player2.collider.width = 30
+  player2.collider.height = 30
 
   createHardCollision(player1, floor)
   createHardCollision(player2, floor)
@@ -49,12 +49,12 @@ export function setup(game) {
 
   let cactusSpeed = 0.01
 
+  let cactusList = []
   const resetGame = () => {
     cactusList = []
     window.location.reload()
   }
 
-  const cactusList = []
   for (let i = 0; i < 5; i++) {
     const cactus = new DynamicItem({
       position: new Vector({ x: 800 + i * (150 + 100 * Math.random()), y: 300 }),
@@ -68,8 +68,8 @@ export function setup(game) {
 
     createHardCollision(cactus, player2)
 
-    cactus
-      .OnCollision(player2, () => {
+    player2
+      .OnCollision(cactus, () => {
         game.canvas.fillText('Player 👾 lost!', 30, 30)
         resetGame()
       })

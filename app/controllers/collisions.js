@@ -7,10 +7,25 @@ class CollisionObserver {
   }
 
   checkCollision(item) {
-    return this.item.collider.x < item.collider.x + item.collider.width &&
-      this.item.collider.x + this.item.collider.width > item.collider.x &&
-      this.item.collider.y < item.collider.y + item.collider.height &&
-      this.item.collider.y + this.item.collider.height > item.collider.y
+    // Padding is used to make the collision detection less strict, I don't know why its too strict without it or why the padding is 4
+    const PADDING = 4
+    
+    const paddedOwnItemCollider = {
+      x: this.item.collider.x + PADDING,
+      y: this.item.collider.y + PADDING,
+      width: this.item.collider.width - PADDING * 2,
+      height: this.item.collider.height - PADDING * 2
+    }
+    const paddedOtherItemCollider = {
+      x: item.collider.x + PADDING,
+      y: item.collider.y + PADDING,
+      width: item.collider.width - PADDING * 2,
+      height: item.collider.height - PADDING * 2
+    }
+    return paddedOwnItemCollider.x < paddedOtherItemCollider.x + paddedOtherItemCollider.width &&
+      paddedOwnItemCollider.x + (paddedOwnItemCollider.width - PADDING) > paddedOtherItemCollider.x &&
+      paddedOwnItemCollider.y < paddedOtherItemCollider.y + paddedOtherItemCollider.height &&
+      paddedOwnItemCollider.y + paddedOwnItemCollider.height > paddedOtherItemCollider.y
   }
 
   OnCollision(action) {
@@ -25,18 +40,19 @@ class CollisionObserver {
 }
 
 export class Collider {
+  #item
   constructor({ item, width, height }) {
-    this.item = item
+    this.#item = item
     this.width = width ?? item.width
     this.height = height ?? item.height
   }
 
   get x() {
-    return this.item.x + (this.item.width - this.width) / 2
+    return this.#item.x + (this.#item.width - this.width) / 2
   }
 
   get y() {
-    return this.item.y + (this.item.height - this.height) / 2
+    return this.#item.y + (this.#item.height - this.height) / 2
   }
 }
 

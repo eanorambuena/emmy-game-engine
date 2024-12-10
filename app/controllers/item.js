@@ -27,13 +27,6 @@ export class Item {
     return this.position.y
   }
 
-  checkCollision(item) {
-    return this.x < item.x + item.width &&
-      this.x + this.width > item.x &&
-      this.y < item.y + item.height &&
-      this.y + this.height > item.y
-  }
-
   addCollisionObserver(observer) {
     this.collisionObservers.push(observer)
   }

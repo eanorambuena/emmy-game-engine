@@ -7,7 +7,7 @@ export function game({ el }) {
   const width = 800
   const height = 400
   
-  const game = new Game()
+  const game = new Game({ showColliders: true })
   setup(game)
 
   el.useEffect(() => {
