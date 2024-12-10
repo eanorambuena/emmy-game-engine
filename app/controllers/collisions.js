@@ -7,9 +7,9 @@ class CollisionObserver {
   }
 
   checkCollision(item) {
-    // Padding is used to make the collision detection less strict, I don't know why its too strict without it or why the padding is 4
-    const PADDING = 4
-    
+    // Padding is used to make the collision detection less strict, I don't know why its too strict without it or why the padding is 3
+    const PADDING = 3
+
     const paddedOwnItemCollider = {
       x: this.item.collider.x + PADDING,
       y: this.item.collider.y + PADDING,

@@ -42,11 +42,8 @@ export function setup(game) {
   game.addRigidBody(player2)
   walls.forEach(wall => game.addStaticItem(wall))
 
-  player1.collider.width = 30
-  player1.collider.height = 30
-
-  player2.collider.width = 40
-  player2.collider.height = 40
+  player1.collider.width = 40
+  player1.collider.height = 40
 
   createHardCollision(player1, floor)
   createHardCollision(player2, floor)

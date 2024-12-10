@@ -15,13 +15,25 @@ export class Game {
     this.gameLoop = () => {}
     this.deltaTime = deltaTime
 
-    setInterval(() => {
-      if (this.canvas) this.canvas.clear()
-      this.gameLoop()
-
-      this.staticItems.forEach(staticItem => {
-        this.canvas?.drawItem(staticItem)
+    const checkCollisionsAndDraw = item => {
+      this.canvas?.drawItem(item)
+      Object.values(item.collisionObservers).forEach(observer => {
+        if (observer.checkCollision(item)) observer.onCollision()
+        else observer.onNoCollision()
       })
+    }
+
+    const drawColliders = item => {
+      this.canvas?.fillRect({
+        position: new Vector({ x: item.collider.x, y: item.collider.y }),
+        width: item.collider.width,
+        height: item.collider.height,
+        color: 'rgba(255, 0, 0, 0.7)'
+      })
+    }
+
+    setInterval(() => {
+      this.gameLoop()
 
       for (const rigidBody of this.rigidBodies) {
         const netForce = rigidBody.getNetForce()
@@ -42,13 +54,11 @@ export class Game {
         dynamicItem.clearOldMovements()
       }
 
-      const checkCollisionsAndDraw = item => {
-        this.canvas?.drawItem(item)
-        Object.values(item.collisionObservers).forEach(observer => {
-          if (observer.checkCollision(item)) observer.onCollision()
-          else observer.onNoCollision()
-        })
-      }
+      if (this.canvas) this.canvas.clear()
+
+      this.staticItems.forEach(staticItem => {
+        this.canvas?.drawItem(staticItem)
+      })
 
       this.staticItems.forEach(checkCollisionsAndDraw)
       this.dynamicItems.forEach(checkCollisionsAndDraw)
@@ -56,9 +66,7 @@ export class Game {
       if (!showColliders) {
         return
       }
-      const drawColliders = item => {
-        this.canvas?.fillRect({ position: new Vector({ x: item.collider.x, y: item.collider.y }), width: item.collider.width, height: item.collider.height, color: 'rgba(255, 0, 0, 0.7)' })
-      }
+      
       this.staticItems.forEach(drawColliders)
       this.dynamicItems.forEach(drawColliders)
     }, this.deltaTime)
