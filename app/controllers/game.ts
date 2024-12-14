@@ -2,20 +2,29 @@ import { Movement, MovementIds } from './movements'
 import { GameCanvas } from './canvas'
 import { Keyboard } from './keyboard'
 import { Vector } from './vector'
+import { DynamicItem, Item, RigidBody } from './item'
 
 const DEFAULT_DELTA_TIME = 15
 
 export class Game {
+  keyboard: Keyboard
+  canvas?: GameCanvas
+  staticItems: Item[]
+  dynamicItems: DynamicItem[]
+  rigidBodies: RigidBody[]
+  gameLoop: () => void
+  deltaTime: number
+
   constructor({showColliders = false, deltaTime = DEFAULT_DELTA_TIME } = {}) {
     this.keyboard = new Keyboard()
-    this.canvas = null
+    this.canvas = undefined
     this.staticItems = []
     this.dynamicItems = []
     this.rigidBodies = []
     this.gameLoop = () => {}
     this.deltaTime = deltaTime
 
-    const checkCollisionsAndDraw = item => {
+    const checkCollisionsAndDraw = (item: Item) => {
       this.canvas?.drawItem(item)
       Object.values(item.collisionObservers).forEach(observer => {
         if (observer.checkCollision(item)) observer.onCollision()
@@ -23,7 +32,7 @@ export class Game {
       })
     }
 
-    const drawColliders = item => {
+    const drawColliders = (item: Item) => {
       this.canvas?.fillRect({
         position: new Vector({ x: item.collider.x, y: item.collider.y }),
         width: item.collider.width,
@@ -44,8 +53,8 @@ export class Game {
       }
 
       for (const dynamicItem of this.dynamicItems) {
-        if (dynamicItem.keyBindings) {
-          for (const [key, movement] of Object.entries(dynamicItem.keyBindings(this))) {
+        if (dynamicItem.keyBinding) {
+          for (const [key, movement] of Object.entries(dynamicItem.keyBinding(this))) {
             if (this.keyboard.keys[key]) dynamicItem.addMovement(movement)
           }
         }
@@ -72,20 +81,20 @@ export class Game {
     }, this.deltaTime)
   }
 
-  addStaticItem(staticItem) {
+  addStaticItem(staticItem: Item) {
     this.staticItems.push(staticItem)
   }
 
-  addDynamicItem(dynamicItem) {
+  addDynamicItem(dynamicItem: DynamicItem) {
     this.dynamicItems.push(dynamicItem)
   }
 
-  addRigidBody(rigidBody) {
+  addRigidBody(rigidBody: RigidBody) {
     this.rigidBodies.push(rigidBody)
     this.addDynamicItem(rigidBody)
   }
 
-  initializeCanvas(canvas) {
+  initializeCanvas(canvas: HTMLCanvasElement) {
     this.canvas = new GameCanvas(canvas)
   }
 }

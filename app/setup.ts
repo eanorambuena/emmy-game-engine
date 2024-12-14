@@ -25,15 +25,15 @@ export function setup(game) {
   const player1 = new RigidBody({
     position: new Vector({ x: 50, y: 50 }),
     size: 50,
-    keyBindings: KeyBindings.ARROWS,
+    keyBinding: KeyBindings.ARROWS,
     texture: 'https://emojicdn.elk.sh/🚀'
   })
   const player2 = new RigidBody({
     position: new Vector({ x: 300, y: 300 }),
     size: 50,
     movementSpeed: new Vector({ x: 0.5, y: 1.5 }),
-    gravity: new Vector({ x: 0, y: 0.0001 }),
-    keyBindings: KeyBindings.WASD,
+    gravity: new Vector({ x: 0, y: 0.1 }),
+    keyBinding: KeyBindings.WASD,
     texture: 'https://emojicdn.elk.sh/👾'
   })
 
@@ -61,7 +61,7 @@ export function setup(game) {
 
   let cactusSpeed = 0.01
 
-  let cactusList = []
+  let cactusList: Array<DynamicItem> = []
   const resetGame = () => {
     cactusList = []
     window.location.reload()
@@ -89,11 +89,11 @@ export function setup(game) {
 
   game.gameLoop = () => {
     if (player2.y >= 299) {
-      player2.keyBindings = KeyBindings.WASD
+      player2.keyBinding = KeyBindings.WASD
     }
     else {
-      player2.keyBindings = (game) => ({
-        w: ZERO_VECTOR,
+      player2.keyBinding = (game) => ({
+        w: Movements.ZERO,
         a: Movements.LEFT,
         s: Movements.DOWN,
         d: Movements.RIGHT

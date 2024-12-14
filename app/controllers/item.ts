@@ -1,17 +1,51 @@
-import { Collider } from './collisions'
-import { MovementIds } from './movements'
+import { Collider, CollisionObserver, OnEventCallback } from './collisions'
+import { Movement, MovementIds } from './movements'
 import { Vector, ZERO_VECTOR } from './vector'
+import { KeyBinding } from './keyBindings'
 
 const DEFAULT_COLOR = 'green'
 const DEFAULT_MOVEMENT_SPEED = new Vector({ x: 1, y: 1 })
 const DEFAULT_INERTIA = 100
 const DEFAULT_GRAVITY = new Vector({ x: 0, y: 0.098 })
 
+type TextureParams = {
+  color?: string
+  texture?: string
+}
+
+type SizeParams = {
+  width: number
+  height: number
+  size?: number
+} | {
+  width?: number
+  height?: number
+  size: number
+}
+
+type ItemParams = TextureParams & SizeParams & {
+  position: Vector
+  isActive?: boolean
+}
+
 export class Item {
-  constructor({ position, width, height, size, texture, color = DEFAULT_COLOR, isActive = true }) {
+  position: Vector
+  width: number
+  height: number
+  color: string
+  texture?: string
+  collisionObservers: CollisionObserver[]
+  isActive: boolean
+  collider: Collider
+
+  constructor({ position, texture, color = DEFAULT_COLOR, isActive = true, ...sizeParameters }: ItemParams) {
+    if (!sizeParameters.size && !(sizeParameters.width && sizeParameters.height)) {
+      throw new Error('You must provide either a size or a width and a height')
+    }
+
     this.position = position
-    this.width = size ?? width
-    this.height = size ?? height
+    this.width = (sizeParameters.size ?? sizeParameters.width) as number
+    this.height = (sizeParameters.size ?? sizeParameters.height) as number
     this.color = color
     this.texture = texture
     this.collisionObservers = []
@@ -27,51 +61,71 @@ export class Item {
     return this.position.y
   }
 
-  addCollisionObserver(observer) {
+  addCollisionObserver(observer: CollisionObserver) {
     this.collisionObservers.push(observer)
   }
 
-  getCollisionObserverWithItem(item) {
+  getCollisionObserverWithItem(item: Item) {
     return this.collisionObservers.find(observer => observer.item === item)
   }
 
-  OnCollision(item, action) {
-    this.getCollisionObserverWithItem(item).onCollision = action
+  OnCollision(item: Item, action: OnEventCallback) {
+    const observer = this.getCollisionObserverWithItem(item)
+    if (observer) {
+      observer.onCollision = action
+    }
     return this
   }
 
-  OnNoCollision(item, action) {
-    this.getCollisionObserverWithItem(item).onNoCollision = action
+  OnNoCollision(item: Item, action: OnEventCallback) {
+    const observer = this.getCollisionObserverWithItem(item)
+    if (observer) {
+      observer.onNoCollision = action
+    }
     return this
   }
 }
 
+type DynamicItemParams = ItemParams & {
+  inertia?: number
+  movementSpeed?: Vector
+  keyBinding?: KeyBinding
+}
+
 
 export class DynamicItem extends Item {
-  constructor({ position, width, height, size, texture, color, keyBindings, isActive, inertia = DEFAULT_INERTIA, movementSpeed = DEFAULT_MOVEMENT_SPEED }) {
-    super({ position, width, height, size, texture, color, isActive })
+  inertia: number
+  velocity: Vector
+  movements: Movement[]
+  keyBinding?: KeyBinding
+  movementSpeed: Vector
+  normalizeMovementSpeed: boolean
+
+  constructor({ keyBinding, inertia = DEFAULT_INERTIA, movementSpeed = DEFAULT_MOVEMENT_SPEED, ...rest } : DynamicItemParams) {
+    super(rest)
     this.inertia = inertia
     this.velocity = ZERO_VECTOR
     this.movements = []
-    this.keyBindings = keyBindings
+    this.keyBinding = keyBinding
     this.movementSpeed = movementSpeed
     this.normalizeMovementSpeed = true
   }
 
-  move(movement) {
+  move(movement: Vector) {
     const nextPosition = this.position.add(movement)
  
     const itemInNextPosition = new Item({ position: nextPosition, width: this.width, height: this.height })
 
     const willCollide = Object.values(this.collisionObservers).some(collisionObserver => {
       const willCollideWithThatItem = collisionObserver.isHard && collisionObserver.checkCollision(itemInNextPosition)
+      const reciprocalCollisionObserver = collisionObserver.item.getCollisionObserverWithItem(this)
       if (willCollideWithThatItem) {
         collisionObserver.onCollision()
-        collisionObserver.item.getCollisionObserverWithItem(this).onCollision()
+        reciprocalCollisionObserver?.onCollision()
       }
       else {
         collisionObserver.onNoCollision()
-        collisionObserver.item.getCollisionObserverWithItem(this).onNoCollision()
+        reciprocalCollisionObserver?.onNoCollision()
       }
       return willCollideWithThatItem
     })
@@ -112,11 +166,20 @@ export class DynamicItem extends Item {
   }
 }
 
+
+type RigidBodyParams = DynamicItemParams & {
+  forces?: Vector[]
+  gravity?: Vector
+}
+
 export class RigidBody extends DynamicItem {
-  constructor({ position, width, height, size, texture, color, inertia, keyBindings, isActive, movementSpeed }) {
-    super({ position, width, height, size, texture, color, inertia, keyBindings, isActive, movementSpeed })
-    this.forces = []
-    this.gravity = DEFAULT_GRAVITY
+  forces: Vector[]
+  gravity: Vector
+
+  constructor({ forces = [], gravity = DEFAULT_GRAVITY, ...dynamicItemParams }: RigidBodyParams) {
+    super(dynamicItemParams)
+    this.forces = forces
+    this.gravity = gravity
   }
 
   addForce(force) {

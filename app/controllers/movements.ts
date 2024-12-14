@@ -1,14 +1,13 @@
 import { Vector } from './vector'
 
-export const MovementIds = {
-  UP: 'UP',
-  DOWN: 'DOWN',
-  LEFT: 'LEFT',
-  RIGHT: 'RIGHT',
-  PHYSICS: 'PHYSICS'
+export enum MovementIds {
+  UP, DOWN, LEFT, RIGHT, PHYSICS, ZERO
 }
 
 export class Movement extends Vector {
+  id: MovementIds
+  createdAt: number
+
   constructor({ x, y, id = MovementIds.PHYSICS }) {
     super({ x, y })
     this.id = id
@@ -21,8 +20,9 @@ export class Movement extends Vector {
 
   normalize() {
     const normalized = super.normalize()
-    normalized.id = this.id
-    return normalized
+    const movement = new Movement({ x: normalized.x, y: normalized.y })
+    movement.id = this.id
+    return movement
   }
 }
 
@@ -31,4 +31,5 @@ export const Movements = {
   DOWN: new Movement({ x: 0, y: 1, id: MovementIds.DOWN }),
   LEFT: new Movement({ x: -1, y: 0, id: MovementIds.LEFT }),
   RIGHT: new Movement({ x: 1, y: 0, id: MovementIds.RIGHT }),
+  ZERO: new Movement({ x: 0, y: 0, id: MovementIds.ZERO })
 }

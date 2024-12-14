@@ -1,4 +1,13 @@
-class CollisionObserver {
+import { Item } from "./item"
+
+export type OnEventCallback = () => void
+
+export class CollisionObserver {
+  item: Item
+  isHard: boolean
+  onCollision: OnEventCallback
+  onNoCollision: OnEventCallback
+
   constructor({ item, isHard = false, onCollision = () => {}, onNoCollision = () => {} }) {
     this.item = item
     this.isHard = isHard
@@ -6,7 +15,7 @@ class CollisionObserver {
     this.onNoCollision = onNoCollision
   }
 
-  checkCollision(item) {
+  checkCollision(item: Item) {
     // Padding is used to make the collision detection less strict, I don't know why its too strict without it or why the padding is 3
     const PADDING = 3
 
@@ -28,20 +37,30 @@ class CollisionObserver {
       paddedOwnItemCollider.y + paddedOwnItemCollider.height > paddedOtherItemCollider.y
   }
 
-  OnCollision(action) {
+  OnCollision(action: OnEventCallback) {
     this.onCollision = action
     return this
   }
 
-  OnNoCollision(action) {
+  OnNoCollision(action: OnEventCallback) {
     this.onNoCollision = action
     return this
   }
 }
 
+
+type ColliderParams = {
+  item: Item
+  width?: number
+  height?: number
+}
+
 export class Collider {
-  #item
-  constructor({ item, width, height }) {
+  #item: Item
+  width: number
+  height: number
+
+  constructor({ item, width, height }: ColliderParams) {
     this.#item = item
     this.width = width ?? item.width
     this.height = height ?? item.height

@@ -1,4 +1,7 @@
-import { Movements } from './movements'
+import { Key } from './keyboard'
+import { Movement, Movements } from './movements'
+
+export type KeyBinding = (game: any) => Partial<Record<Key, Movement>>
 
 export const KeyBindings = {
   ARROWS: (game) => ({

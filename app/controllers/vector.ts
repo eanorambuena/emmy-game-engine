@@ -1,10 +1,13 @@
 export class Vector {
+  x: number
+  y: number
+
   constructor({ x, y }) {
     this.x = x
     this.y = y
   }
 
-  add(vector) {
+  add(vector: Vector) {
     return new Vector({ x: this.x + vector.x, y: this.y + vector.y })
   }
 
@@ -18,15 +21,15 @@ export class Vector {
     return Math.sqrt(this.x ** 2 + this.y ** 2)
   }
 
-  scale(scalar) {
+  scale(scalar: number) {
     return new Vector({ x: this.x * scalar, y: this.y * scalar })
   }
 
-  equals(vector) {
+  equals(vector: Vector) {
     return this.x === vector.x && this.y === vector.y
   }
 
-  kroneckerProduct(vector) {
+  kroneckerProduct(vector: Vector) {
     return new Vector({ x: this.x * vector.x, y: this.y * vector.y })
   }
 }

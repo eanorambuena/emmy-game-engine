@@ -1,4 +1,8 @@
+export type Key = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight' | 'w' | 'a' | 's' | 'd'
+
 export class Keyboard {
+  keys: Record<Key, boolean>
+
   constructor() {
     this.keys = {
       ArrowUp: false,
