@@ -3,8 +3,9 @@ import { Vector, ZERO_VECTOR } from './controllers/vector'
 import { KeyBindings } from './controllers/keyBindings'
 import { createHardCollision } from './controllers/collisions'
 import { Movement, Movements } from './controllers/movements'
+import { Game } from './controllers/game'
 
-export function setup(game) {
+export function setup(game: Game) {
   const floor = new Item({
     position: new Vector({ x: 0, y: 350 }),
     width: 800,
@@ -82,7 +83,7 @@ export function setup(game) {
 
     player2
       .OnCollision(cactus, () => {
-        game.canvas.fillText('Player 👾 lost!', 30, 30)
+        game.canvas?.fillText('Player 👾 lost!', 30, 30)
         resetGame()
       })
   }
